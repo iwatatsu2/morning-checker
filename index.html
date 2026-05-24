@@ -351,8 +351,8 @@ function init() {
     state = JSON.parse(saved);
   } else {
     state.members = [
-      { name: 'さゆみ', gender: 'girl', tasks: ['wash','eat','brush','dress'], customTasks: [] },
-      { name: 'けんじ', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] },
+      { name: '', gender: 'girl', tasks: ['wash','eat','brush','dress'], customTasks: [] },
+      { name: '', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] },
     ];
   }
   if (state.mode === 'night') document.body.classList.add('night-mode');
