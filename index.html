@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あさのしたく チェッカー</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Rounded Mplus 1c', sans-serif; }
+  @import url('https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c:wght@700&display=swap');
+
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #f0f4ff;
+  }
+
+  .row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .row-girl { background: #fff0f5; }
+  .row-boy { background: #f0f8ff; }
+
+  .name-label {
+    writing-mode: vertical-rl;
+    font-size: 1.6rem;
+    font-weight: bold;
+    letter-spacing: 0.3em;
+    min-width: 50px;
+    text-align: center;
+  }
+  .row-girl .name-label { color: #e75480; }
+  .row-boy .name-label { color: #4a90d9; }
+
+  .tasks {
+    flex: 1;
+    display: flex;
+    gap: 6px;
+    height: 100%;
+    padding: 4px 0;
+  }
+
+  .task {
+    flex: 1;
+    border-radius: 16px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 4px solid #ddd;
+    background: white;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .task img {
+    width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  .task .task-label {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 2px;
+    color: #555;
+  }
+
+  .row-girl .task { border-color: #f8b4c8; }
+  .row-boy .task { border-color: #a0c4e8; }
+
+  .task.done {
+    background: #c8f7c5;
+    border-color: #4caf50;
+    transform: scale(0.95);
+  }
+  .task.done::after {
+    content: "\2714";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 2.5rem;
+    color: #4caf50;
+  }
+  .task.done img { opacity: 0.5; }
+
+  .reset-btn {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    padding: 10px 24px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    background: #ff8a65;
+    color: white;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* 全部できた演出 */
+  .complete-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .complete-overlay.show { display: flex; }
+  .complete-msg {
+    background: white;
+    border-radius: 30px;
+    padding: 40px 60px;
+    text-align: center;
+    animation: popIn 0.5s ease;
+  }
+  .complete-msg .emoji { font-size: 5rem; }
+  .complete-msg .text { font-size: 2.5rem; font-weight: bold; color: #4caf50; margin-top: 10px; }
+  .complete-msg button {
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    background: #4caf50;
+    color: white;
+    cursor: pointer;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 娘 -->
+<div class="row row-girl">
+  <div class="name-label">さゆみ</div>
+  <div class="tasks">
+    <div class="task" onclick="toggle(this)">
+      <img src="girl-wash.png" alt="顔を洗う">
+      <span class="task-label">かおをあらう</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="girl-eat.png" alt="朝ごはん">
+      <span class="task-label">あさごはん</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="girl-brush.png" alt="歯磨き">
+      <span class="task-label">はみがき</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="girl-dress.png" alt="着替え">
+      <span class="task-label">おきがえ</span>
+    </div>
+  </div>
+</div>
+
+<!-- 息子 -->
+<div class="row row-boy">
+  <div class="name-label">けんじ</div>
+  <div class="tasks">
+    <div class="task" onclick="toggle(this)">
+      <img src="boy-wash.png" alt="顔を洗う">
+      <span class="task-label">かおをあらう</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="boy-eat.png" alt="朝ごはん">
+      <span class="task-label">あさごはん</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="boy-brush.png" alt="歯磨き">
+      <span class="task-label">はみがき</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <img src="boy-dress.png" alt="着替え">
+      <span class="task-label">おきがえ</span>
+    </div>
+  </div>
+</div>
+
+<button class="reset-btn" onclick="resetAll()">リセット</button>
+
+<div class="complete-overlay" id="overlay">
+  <div class="complete-msg">
+    <div class="emoji">🎉🌟🎉</div>
+    <div class="text">ぜんぶできたね！すごい！</div>
+    <button onclick="resetAll()">もういちど</button>
+  </div>
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('done');
+  checkComplete();
+}
+
+function checkComplete() {
+  const all = document.querySelectorAll('.task');
+  const done = document.querySelectorAll('.task.done');
+  if (all.length === done.length) {
+    document.getElementById('overlay').classList.add('show');
+  }
+}
+
+function resetAll() {
+  document.querySelectorAll('.task.done').forEach(t => t.classList.remove('done'));
+  document.getElementById('overlay').classList.remove('show');
+}
+</script>
+
+</body>
+</html>
