@@ -2,228 +2,628 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>あさのしたく チェッカー</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; overflow: hidden; font-family: 'Rounded Mplus 1c', sans-serif; }
-  @import url('https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;900&display=swap');
 
-  body {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: #f0f4ff;
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  touch-action: manipulation;
+}
 
-  .row {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    padding: 4px 8px;
-    gap: 6px;
-  }
-  .row-girl { background: #fff0f5; }
-  .row-boy { background: #f0f8ff; }
+/* ===== SETTINGS SCREEN ===== */
+#settings-screen {
+  height: 100vh; overflow-y: auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+.night-mode #settings-screen {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+}
+.settings-title {
+  font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 16px;
+}
+.mode-toggle {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;
+}
+.mode-btn {
+  padding: 10px 28px; border-radius: 30px; border: 3px solid white;
+  background: transparent; color: white; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.mode-btn.active { background: white; color: #764ba2; }
+.night-mode .mode-btn.active { color: #302b63; }
 
-  .name-label {
-    writing-mode: vertical-rl;
-    font-size: 1.6rem;
-    font-weight: bold;
-    letter-spacing: 0.3em;
-    min-width: 50px;
-    text-align: center;
-  }
-  .row-girl .name-label { color: #e75480; }
-  .row-boy .name-label { color: #4a90d9; }
+.member-section {
+  background: rgba(255,255,255,0.15); border-radius: 16px; padding: 16px;
+  margin-bottom: 12px; backdrop-filter: blur(10px);
+}
+.member-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.member-header input {
+  font-size: 1.2rem; padding: 6px 12px; border-radius: 10px; border: none;
+  font-family: inherit; width: 120px;
+}
+.gender-btns { display: flex; gap: 4px; }
+.gender-btn {
+  padding: 6px 14px; border-radius: 20px; border: 2px solid white;
+  background: transparent; color: white; font-size: 1rem; cursor: pointer;
+  font-family: inherit;
+}
+.gender-btn.active { background: white; color: #333; }
+.remove-member {
+  margin-left: auto; background: rgba(255,0,0,0.4); border: none; color: white;
+  border-radius: 50%; width: 30px; height: 30px; font-size: 1.2rem; cursor: pointer;
+}
 
-  .tasks {
-    flex: 1;
-    display: flex;
-    gap: 6px;
-    height: 100%;
-    padding: 4px 0;
-  }
+.task-grid {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+}
+.task-chip {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.5);
+  background: transparent; color: white; font-size: 0.9rem; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.task-chip.selected { background: rgba(255,255,255,0.9); color: #333; border-color: white; }
+.task-chip img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; }
 
-  .task {
-    flex: 1;
-    border-radius: 16px;
-    padding: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 4px solid #ddd;
-    background: white;
-    position: relative;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .task img {
-    width: 90%;
-    max-height: 85%;
-    object-fit: contain;
-    pointer-events: none;
-  }
-  .task .task-label {
-    font-size: 1rem;
-    font-weight: bold;
-    margin-top: 2px;
-    color: #555;
-  }
+.custom-task-row {
+  display: flex; gap: 6px; margin-top: 8px; align-items: center;
+}
+.custom-task-row input {
+  flex: 1; padding: 6px 10px; border-radius: 10px; border: none;
+  font-family: inherit; font-size: 0.95rem;
+}
+.custom-task-row .emoji-input {
+  width: 50px; text-align: center; font-size: 1.2rem;
+}
+.add-task-btn {
+  padding: 6px 14px; border-radius: 10px; border: none;
+  background: rgba(255,255,255,0.8); color: #333; font-weight: 700;
+  cursor: pointer; font-family: inherit; font-size: 1rem;
+}
 
-  .row-girl .task { border-color: #f8b4c8; }
-  .row-boy .task { border-color: #a0c4e8; }
+.bottom-actions {
+  display: flex; gap: 10px; justify-content: center; margin: 16px 0; flex-wrap: wrap;
+}
+.add-member-btn, .start-btn {
+  padding: 14px 36px; border-radius: 30px; border: none;
+  font-size: 1.2rem; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.add-member-btn { background: rgba(255,255,255,0.3); color: white; }
+.start-btn { background: #4caf50; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-  .task.done {
-    background: #c8f7c5;
-    border-color: #4caf50;
-    transform: scale(0.95);
-  }
-  .task.done::after {
-    content: "\2714";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 2.5rem;
-    color: #4caf50;
-  }
-  .task.done img { opacity: 0.5; }
+/* ===== CHECKER SCREEN ===== */
+#checker-screen { display: none; height: 100vh; flex-direction: column; }
+#checker-screen.visible { display: flex; }
 
-  .reset-btn {
-    position: fixed;
-    bottom: 12px;
-    right: 16px;
-    padding: 10px 24px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 30px;
-    background: #ff8a65;
-    color: white;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
+.checker-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 12px; background: #667eea; color: white;
+  min-height: 36px;
+}
+.night-mode .checker-header { background: #302b63; }
+.checker-header .title { font-weight: 700; font-size: 1.1rem; }
+.checker-header button {
+  padding: 4px 14px; border-radius: 20px; border: 2px solid white;
+  background: transparent; color: white; font-weight: 700; cursor: pointer;
+  font-family: inherit; font-size: 0.85rem;
+}
 
-  /* 全部できた演出 */
-  .complete-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-  }
-  .complete-overlay.show { display: flex; }
-  .complete-msg {
-    background: white;
-    border-radius: 30px;
-    padding: 40px 60px;
-    text-align: center;
-    animation: popIn 0.5s ease;
-  }
-  .complete-msg .emoji { font-size: 5rem; }
-  .complete-msg .text { font-size: 2.5rem; font-weight: bold; color: #4caf50; margin-top: 10px; }
-  .complete-msg button {
-    margin-top: 20px;
-    padding: 12px 40px;
-    font-size: 1.3rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 30px;
-    background: #4caf50;
-    color: white;
-    cursor: pointer;
-  }
+.week-tracker {
+  display: flex; justify-content: center; gap: 6px; padding: 4px 0;
+  background: #f5f5f5;
+}
+.night-mode .week-tracker { background: #1a1a2e; }
+.week-day {
+  display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700;
+}
+.night-mode .week-day { color: #aaa; }
+.week-day .star { font-size: 1.2rem; }
+.week-day.today { color: #667eea; }
+.night-mode .week-day.today { color: #a78bfa; }
 
-  @keyframes popIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+.members-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+
+.member-row {
+  flex: 1; display: flex; align-items: center; padding: 4px 8px; gap: 6px;
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+  transition: all 0.5s;
+}
+.member-row.girl-row { background: #fff0f5; }
+.member-row.boy-row { background: #f0f8ff; }
+.night-mode .member-row.girl-row { background: #2a1a2a; }
+.night-mode .member-row.boy-row { background: #1a1a2e; }
+
+.member-row.all-done { position: relative; }
+.member-row.all-done::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(76,175,80,0.15); pointer-events: none;
+  animation: flashGreen 0.6s ease;
+}
+@keyframes flashGreen {
+  0%,100% { background: rgba(76,175,80,0); }
+  50% { background: rgba(76,175,80,0.3); }
+}
+
+.member-name {
+  writing-mode: vertical-rl; font-size: 1.4rem; font-weight: 900;
+  letter-spacing: 0.2em; min-width: 44px; text-align: center;
+}
+.member-row.girl-row .member-name { color: #e75480; }
+.member-row.boy-row .member-name { color: #4a90d9; }
+.night-mode .member-row.girl-row .member-name { color: #f8a4c8; }
+.night-mode .member-row.boy-row .member-name { color: #7ab8f5; }
+
+.done-badge {
+  display: none; font-size: 1.8rem; margin-left: -8px;
+  animation: popBadge 0.5s ease;
+}
+.member-row.all-done .done-badge { display: block; }
+@keyframes popBadge { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+.task-list {
+  flex: 1; display: flex; gap: 6px; height: 100%; padding: 4px 0;
+}
+.task-card {
+  flex: 1; border-radius: 16px; padding: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.3s ease;
+  border: 4px solid #ddd; background: white; position: relative;
+  user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  max-width: 180px;
+}
+.night-mode .task-card { background: #2a2a3e; border-color: #444; }
+.member-row.girl-row .task-card { border-color: #f8b4c8; }
+.member-row.boy-row .task-card { border-color: #a0c4e8; }
+.night-mode .member-row.girl-row .task-card { border-color: #8a4060; }
+.night-mode .member-row.boy-row .task-card { border-color: #3a5a8a; }
+
+.task-card img {
+  width: 85%; max-height: 75%; object-fit: contain; pointer-events: none;
+}
+.task-card .emoji-icon {
+  font-size: 3rem; pointer-events: none;
+}
+.task-card .task-name {
+  font-size: 0.85rem; font-weight: 700; margin-top: 2px; color: #555;
+  text-align: center; line-height: 1.1;
+}
+.night-mode .task-card .task-name { color: #bbb; }
+
+.task-card.done {
+  background: #c8f7c5; border-color: #4caf50; transform: scale(0.95);
+}
+.night-mode .task-card.done { background: #1a4a1a; border-color: #4caf50; }
+.task-card.done::after {
+  content: "\2714"; position: absolute; top: 4px; right: 8px;
+  font-size: 2rem; color: #4caf50;
+}
+.task-card.done img, .task-card.done .emoji-icon { opacity: 0.4; }
+
+.reset-all-btn {
+  position: fixed; bottom: 8px; right: 12px; padding: 8px 20px;
+  font-size: 1rem; font-weight: 700; border: none; border-radius: 30px;
+  background: #ff8a65; color: white; cursor: pointer; z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-family: inherit;
+}
+
+/* Complete overlay */
+.reward-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 100; align-items: center; justify-content: center;
+}
+.reward-overlay.show { display: flex; }
+.reward-msg {
+  background: white; border-radius: 30px; padding: 30px 50px;
+  text-align: center; animation: popIn 0.5s ease;
+}
+.night-mode .reward-msg { background: #2a2a3e; color: white; }
+.reward-msg .emoji { font-size: 4rem; }
+.reward-msg .text { font-size: 2rem; font-weight: 900; color: #4caf50; margin-top: 8px; }
+.reward-msg .sub { font-size: 1rem; color: #888; margin-top: 4px; }
+.reward-msg button {
+  margin-top: 16px; padding: 10px 30px; font-size: 1.1rem; font-weight: 700;
+  border: none; border-radius: 30px; background: #4caf50; color: white;
+  cursor: pointer; font-family: inherit;
+}
+@keyframes popIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Week reward */
+.week-reward-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  z-index: 200; align-items: center; justify-content: center;
+}
+.week-reward-overlay.show { display: flex; }
+.week-reward-msg {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 30px; padding: 40px 60px; text-align: center;
+  animation: popIn 0.5s ease; color: white;
+}
+.week-reward-msg .emoji { font-size: 5rem; }
+.week-reward-msg .text { font-size: 2.5rem; font-weight: 900; margin-top: 10px; }
+.week-reward-msg .sub { font-size: 1.2rem; margin-top: 8px; }
+.week-reward-msg button {
+  margin-top: 20px; padding: 12px 40px; font-size: 1.2rem; font-weight: 700;
+  border: none; border-radius: 30px; background: white; color: #f5576c;
+  cursor: pointer; font-family: inherit;
+}
+
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<!-- 娘 -->
-<div class="row row-girl">
-  <div class="name-label">さゆみ</div>
-  <div class="tasks">
-    <div class="task" onclick="toggle(this)">
-      <img src="girl-wash.png" alt="顔を洗う">
-      <span class="task-label">かおをあらう</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="girl-eat.png" alt="朝ごはん">
-      <span class="task-label">あさごはん</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="girl-brush.png" alt="歯磨き">
-      <span class="task-label">はみがき</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="girl-dress.png" alt="着替え">
-      <span class="task-label">おきがえ</span>
-    </div>
+<!-- ===== SETTINGS SCREEN ===== -->
+<div id="settings-screen">
+  <div class="settings-title">あさのしたく チェッカー</div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('morning')">🌅 あさ</button>
+    <button class="mode-btn" onclick="setMode('night')">🌙 よる</button>
+  </div>
+
+  <div id="members-container"></div>
+
+  <div class="bottom-actions">
+    <button class="add-member-btn" id="add-member-btn" onclick="addMember()">＋ ひとりふやす</button>
+    <button class="start-btn" onclick="startChecker()">スタート！</button>
   </div>
 </div>
 
-<!-- 息子 -->
-<div class="row row-boy">
-  <div class="name-label">けんじ</div>
-  <div class="tasks">
-    <div class="task" onclick="toggle(this)">
-      <img src="boy-wash.png" alt="顔を洗う">
-      <span class="task-label">かおをあらう</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="boy-eat.png" alt="朝ごはん">
-      <span class="task-label">あさごはん</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="boy-brush.png" alt="歯磨き">
-      <span class="task-label">はみがき</span>
-    </div>
-    <div class="task" onclick="toggle(this)">
-      <img src="boy-dress.png" alt="着替え">
-      <span class="task-label">おきがえ</span>
+<!-- ===== CHECKER SCREEN ===== -->
+<div id="checker-screen">
+  <div class="checker-header">
+    <span class="title" id="checker-title">あさのしたく</span>
+    <div>
+      <button onclick="resetToday()">リセット</button>
+      <button onclick="goSettings()">せってい</button>
     </div>
   </div>
-</div>
-
-<button class="reset-btn" onclick="resetAll()">リセット</button>
-
-<div class="complete-overlay" id="overlay">
-  <div class="complete-msg">
-    <div class="emoji">🎉🌟🎉</div>
-    <div class="text">ぜんぶできたね！すごい！</div>
-    <button onclick="resetAll()">もういちど</button>
+  <div class="week-tracker" id="week-tracker"></div>
+  <div class="members-area" id="members-area"></div>
+  <div class="reward-overlay" id="reward-overlay">
+    <div class="reward-msg">
+      <div class="emoji">🎉✨🎉</div>
+      <div class="text" id="reward-name"></div>
+      <div class="sub">ぜんぶできたね！</div>
+      <button onclick="closeReward()">とじる</button>
+    </div>
+  </div>
+  <div class="week-reward-overlay" id="week-reward">
+    <div class="week-reward-msg">
+      <div class="emoji">🏆🌟🎊🌟🏆</div>
+      <div class="text">5にちかん がんばったね！</div>
+      <div class="sub" id="week-reward-sub"></div>
+      <button onclick="closeWeekReward()">やったー！</button>
+    </div>
   </div>
 </div>
 
 <script>
-function toggle(el) {
-  el.classList.toggle('done');
-  checkComplete();
+// ===== TASK DEFINITIONS =====
+const PRESET_TASKS = {
+  morning: [
+    { id: 'wash', label: 'かおをあらう', img: '{g}-wash.png' },
+    { id: 'eat', label: 'あさごはん', img: '{g}-eat.png' },
+    { id: 'brush', label: 'はみがき', img: '{g}-brush.png' },
+    { id: 'dress', label: 'おきがえ', img: '{g}-dress.png' },
+    { id: 'hair', label: 'かみをとかす', img: '{g}-hair.png' },
+    { id: 'temp', label: 'たいおん', img: '{g}-temp.png' },
+    { id: 'bag', label: 'かばんじゅんび', img: '{g}-bag.png' },
+    { id: 'piano', label: 'ピアノ', img: '{g}-piano.png' },
+  ],
+  night: [
+    { id: 'bath', label: 'おふろ', img: '{g}-bath.png' },
+    { id: 'dinner', label: 'よるごはん', img: '{g}-dinner.png' },
+    { id: 'brush', label: 'はみがき', img: '{g}-brush.png' },
+    { id: 'pajama', label: 'パジャマ', img: '{g}-pajama.png' },
+    { id: 'homework', label: 'しゅくだい', img: '{g}-homework.png' },
+    { id: 'piano', label: 'ピアノ', img: '{g}-piano.png' },
+    { id: 'bag', label: 'かばんじゅんび', img: '{g}-bag.png' },
+    { id: 'temp', label: 'たいおん', img: '{g}-temp.png' },
+  ]
+};
+
+let state = {
+  mode: 'morning',
+  members: [],
+};
+
+const STORAGE_KEY = 'morning-checker-v2';
+const STREAK_KEY = 'morning-checker-streaks';
+
+// ===== INIT =====
+function init() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    state = JSON.parse(saved);
+  } else {
+    state.members = [
+      { name: 'さゆみ', gender: 'girl', tasks: ['wash','eat','brush','dress'], customTasks: [] },
+      { name: 'けんじ', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] },
+    ];
+  }
+  if (state.mode === 'night') document.body.classList.add('night-mode');
+  renderSettings();
 }
 
-function checkComplete() {
-  const all = document.querySelectorAll('.task');
-  const done = document.querySelectorAll('.task.done');
-  if (all.length === done.length) {
-    document.getElementById('overlay').classList.add('show');
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ===== MODE =====
+function setMode(mode) {
+  state.mode = mode;
+  document.body.classList.toggle('night-mode', mode === 'night');
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSettings();
+  saveState();
+}
+
+// ===== SETTINGS RENDER =====
+function renderSettings() {
+  const container = document.getElementById('members-container');
+  container.innerHTML = '';
+  state.members.forEach((m, i) => {
+    const sec = document.createElement('div');
+    sec.className = 'member-section';
+    const presets = PRESET_TASKS[state.mode];
+    const taskChips = presets.map(t => {
+      const sel = m.tasks.includes(t.id) ? 'selected' : '';
+      const imgSrc = 'img/' + t.img.replace('{g}', m.gender);
+      return `<button class="task-chip ${sel}" onclick="toggleTask(${i},'${t.id}')">
+        <img src="${imgSrc}" alt="">${t.label}</button>`;
+    }).join('');
+    const customChips = (m.customTasks || []).map((ct, ci) =>
+      `<button class="task-chip selected" onclick="removeCustomTask(${i},${ci})">
+        ${ct.emoji} ${ct.label} ✕</button>`
+    ).join('');
+
+    sec.innerHTML = `
+      <div class="member-header">
+        <input value="${m.name}" placeholder="なまえ" onchange="updateName(${i},this.value)">
+        <div class="gender-btns">
+          <button class="gender-btn ${m.gender==='girl'?'active':''}" onclick="setGender(${i},'girl')">👧</button>
+          <button class="gender-btn ${m.gender==='boy'?'active':''}" onclick="setGender(${i},'boy')">👦</button>
+        </div>
+        ${state.members.length > 1 ? `<button class="remove-member" onclick="removeMember(${i})">✕</button>` : ''}
+      </div>
+      <div class="task-grid">${taskChips}${customChips}</div>
+      <div class="custom-task-row">
+        <input class="emoji-input" id="emoji-${i}" placeholder="😊" maxlength="2">
+        <input id="custom-label-${i}" placeholder="じゆうタスク">
+        <button class="add-task-btn" onclick="addCustomTask(${i})">＋</button>
+      </div>
+    `;
+    container.appendChild(sec);
+  });
+  document.getElementById('add-member-btn').classList.toggle('hidden', state.members.length >= 4);
+}
+
+function updateName(i, v) { state.members[i].name = v; saveState(); }
+function setGender(i, g) { state.members[i].gender = g; renderSettings(); saveState(); }
+function toggleTask(i, tid) {
+  const t = state.members[i].tasks;
+  const idx = t.indexOf(tid);
+  if (idx >= 0) t.splice(idx, 1); else t.push(tid);
+  renderSettings(); saveState();
+}
+function addCustomTask(i) {
+  const emoji = document.getElementById(`emoji-${i}`).value || '⭐';
+  const label = document.getElementById(`custom-label-${i}`).value;
+  if (!label) return;
+  if (!state.members[i].customTasks) state.members[i].customTasks = [];
+  state.members[i].customTasks.push({ emoji, label, id: 'custom-' + Date.now() });
+  renderSettings(); saveState();
+}
+function removeCustomTask(i, ci) {
+  state.members[i].customTasks.splice(ci, 1);
+  renderSettings(); saveState();
+}
+function addMember() {
+  if (state.members.length >= 4) return;
+  state.members.push({ name: '', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] });
+  renderSettings(); saveState();
+}
+function removeMember(i) {
+  state.members.splice(i, 1);
+  renderSettings(); saveState();
+}
+
+// ===== CHECKER =====
+function startChecker() {
+  document.getElementById('settings-screen').style.display = 'none';
+  const cs = document.getElementById('checker-screen');
+  cs.classList.add('visible');
+  document.getElementById('checker-title').textContent =
+    state.mode === 'morning' ? '🌅 あさのしたく' : '🌙 よるのしたく';
+  renderWeekTracker();
+  renderChecker();
+}
+
+function goSettings() {
+  document.getElementById('checker-screen').classList.remove('visible');
+  document.getElementById('settings-screen').style.display = '';
+  renderSettings();
+}
+
+function renderChecker() {
+  const area = document.getElementById('members-area');
+  area.innerHTML = '';
+  const today = getTodayKey();
+  const todayState = JSON.parse(localStorage.getItem('checker-today-' + today) || '{}');
+
+  state.members.forEach((m, mi) => {
+    const row = document.createElement('div');
+    row.className = `member-row ${m.gender}-row`;
+    row.id = `member-row-${mi}`;
+
+    const presets = PRESET_TASKS[state.mode];
+    const activeTasks = presets.filter(t => m.tasks.includes(t.id));
+    const customs = m.customTasks || [];
+    const allTasks = [...activeTasks.map(t => ({
+      ...t, imgSrc: 'img/' + t.img.replace('{g}', m.gender), type: 'preset'
+    })), ...customs.map(ct => ({ ...ct, type: 'custom' }))];
+
+    const doneSet = new Set(todayState[mi] || []);
+    const taskCards = allTasks.map((t, ti) => {
+      const key = t.id;
+      const doneClass = doneSet.has(key) ? 'done' : '';
+      const visual = t.type === 'preset'
+        ? `<img src="${t.imgSrc}" alt="${t.label}">`
+        : `<span class="emoji-icon">${t.emoji}</span>`;
+      return `<div class="task-card ${doneClass}" onclick="toggleDone(${mi},'${key}')">
+        ${visual}<span class="task-name">${t.label}</span></div>`;
+    }).join('');
+
+    row.innerHTML = `
+      <div class="member-name">${m.name}</div>
+      <span class="done-badge">🎉</span>
+      <div class="task-list">${taskCards}</div>
+    `;
+    area.appendChild(row);
+  });
+}
+
+function toggleDone(mi, taskId) {
+  const today = getTodayKey();
+  const storeKey = 'checker-today-' + today;
+  const todayState = JSON.parse(localStorage.getItem(storeKey) || '{}');
+  if (!todayState[mi]) todayState[mi] = [];
+  const idx = todayState[mi].indexOf(taskId);
+  if (idx >= 0) todayState[mi].splice(idx, 1); else todayState[mi].push(taskId);
+  localStorage.setItem(storeKey, JSON.stringify(todayState));
+  renderChecker();
+  checkMemberComplete(mi, todayState);
+}
+
+function checkMemberComplete(mi, todayState) {
+  const m = state.members[mi];
+  const presets = PRESET_TASKS[state.mode];
+  const activeTasks = presets.filter(t => m.tasks.includes(t.id));
+  const customs = m.customTasks || [];
+  const total = activeTasks.length + customs.length;
+  const done = (todayState[mi] || []).length;
+
+  if (done >= total && total > 0) {
+    const row = document.getElementById(`member-row-${mi}`);
+    row.classList.add('all-done');
+
+    // Save streak
+    saveStreak(mi);
+
+    // Show reward
+    setTimeout(() => {
+      document.getElementById('reward-name').textContent = m.name + ' すごい！';
+      document.getElementById('reward-overlay').classList.add('show');
+    }, 400);
+
+    // Check week completion
+    setTimeout(() => checkWeekStreak(mi), 800);
   }
 }
 
-function resetAll() {
-  document.querySelectorAll('.task.done').forEach(t => t.classList.remove('done'));
-  document.getElementById('overlay').classList.remove('show');
+function closeReward() {
+  document.getElementById('reward-overlay').classList.remove('show');
 }
-</script>
 
+// ===== STREAKS =====
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekDates() {
+  const now = new Date();
+  const day = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  const dates = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(mon);
+    d.setDate(mon.getDate() + i);
+    dates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  return dates;
+}
+
+function saveStreak(mi) {
+  const streaks = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+  const today = getTodayKey();
+  if (!streaks[mi]) streaks[mi] = [];
+  if (!streaks[mi].includes(today)) streaks[mi].push(today);
+  localStorage.setItem(STREAK_KEY, JSON.stringify(streaks));
+  renderWeekTracker();
+}
+
+function renderWeekTracker() {
+  const tracker = document.getElementById('week-tracker');
+  const weekDates = getWeekDates();
+  const dayNames = ['月','火','水','木','金'];
+  const today = getTodayKey();
+  const streaks = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+
+  let html = '';
+  weekDates.forEach((date, i) => {
+    const isToday = date === today;
+    // Check if ANY member completed this day
+    const anyDone = Object.values(streaks).some(arr => arr.includes(date));
+    html += `<div class="week-day ${isToday ? 'today' : ''}">
+      <span class="star">${anyDone ? '★' : '☆'}</span>
+      <span>${dayNames[i]}</span>
+    </div>`;
+  });
+  tracker.innerHTML = html;
+}
+
+function checkWeekStreak(mi) {
+  const streaks = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+  const weekDates = getWeekDates();
+  const memberStreaks = streaks[mi] || [];
+  const allFive = weekDates.every(d => memberStreaks.includes(d));
+  if (allFive) {
+    const shown = localStorage.getItem('week-reward-shown-' + weekDates[0] + '-' + mi);
+    if (!shown) {
+      localStorage.setItem('week-reward-shown-' + weekDates[0] + '-' + mi, '1');
+      document.getElementById('week-reward-sub').textContent =
+        state.members[mi].name + ' ごほうびだよ！';
+      document.getElementById('reward-overlay').classList.remove('show');
+      document.getElementById('week-reward').classList.add('show');
+    }
+  }
+}
+
+function closeWeekReward() {
+  document.getElementById('week-reward').classList.remove('show');
+}
+
+function resetToday() {
+  const today = getTodayKey();
+  localStorage.removeItem('checker-today-' + today);
+  // Also remove streak for today
+  const streaks = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+  Object.keys(streaks).forEach(k => {
+    streaks[k] = streaks[k].filter(d => d !== today);
+  });
+  localStorage.setItem(STREAK_KEY, JSON.stringify(streaks));
+  renderChecker();
+  renderWeekTracker();
+}
+
+init();
+</script>
 </body>
 </html>
