@@ -115,6 +115,9 @@ html, body {
   background: transparent; color: white; font-weight: 700; cursor: pointer;
   font-family: inherit; font-size: 0.85rem;
 }
+.mode-switch { font-size: 1rem !important; padding: 6px 16px !important; }
+.mode-switch.active { background: white !important; color: #667eea !important; }
+.night-mode .mode-switch.active { color: #302b63 !important; }
 
 .week-tracker {
   display: flex; justify-content: center; gap: 6px; padding: 4px 0;
@@ -285,7 +288,10 @@ html, body {
 <!-- ===== CHECKER SCREEN ===== -->
 <div id="checker-screen">
   <div class="checker-header">
-    <span class="title" id="checker-title">あさのしたく</span>
+    <div>
+      <button class="mode-switch" id="mode-morning" onclick="switchMode('morning')">🌅 あさ</button>
+      <button class="mode-switch" id="mode-night" onclick="switchMode('night')">🌙 よる</button>
+    </div>
     <div>
       <button onclick="resetToday()">リセット</button>
       <button onclick="goSettings()">せってい</button>
@@ -448,10 +454,25 @@ function startChecker() {
   document.getElementById('settings-screen').style.display = 'none';
   const cs = document.getElementById('checker-screen');
   cs.classList.add('visible');
-  document.getElementById('checker-title').textContent =
-    state.mode === 'morning' ? '🌅 あさのしたく' : '🌙 よるのしたく';
+  updateModeButtons();
   renderWeekTracker();
   renderChecker();
+}
+
+function switchMode(mode) {
+  state.mode = mode;
+  document.body.classList.toggle('night-mode', mode === 'night');
+  updateModeButtons();
+  renderChecker();
+  renderWeekTracker();
+  saveState();
+  // Also update settings screen toggle
+  document.querySelectorAll('#settings-screen .mode-btn').forEach(b => b.classList.remove('active'));
+}
+
+function updateModeButtons() {
+  document.getElementById('mode-morning').classList.toggle('active', state.mode === 'morning');
+  document.getElementById('mode-night').classList.toggle('active', state.mode === 'night');
 }
 
 function goSettings() {
@@ -464,7 +485,7 @@ function renderChecker() {
   const area = document.getElementById('members-area');
   area.innerHTML = '';
   const today = getTodayKey();
-  const todayState = JSON.parse(localStorage.getItem('checker-today-' + today) || '{}');
+  const todayState = JSON.parse(localStorage.getItem('checker-today-' + state.mode + '-' + today) || '{}');
 
   state.members.forEach((m, mi) => {
     const row = document.createElement('div');
@@ -500,7 +521,7 @@ function renderChecker() {
 
 function toggleDone(mi, taskId) {
   const today = getTodayKey();
-  const storeKey = 'checker-today-' + today;
+  const storeKey = 'checker-today-' + state.mode + '-' + today;
   const todayState = JSON.parse(localStorage.getItem(storeKey) || '{}');
   if (!todayState[mi]) todayState[mi] = [];
   const idx = todayState[mi].indexOf(taskId);
@@ -612,7 +633,7 @@ function closeWeekReward() {
 
 function resetToday() {
   const today = getTodayKey();
-  localStorage.removeItem('checker-today-' + today);
+  localStorage.removeItem('checker-today-' + state.mode + '-' + today);
   // Also remove streak for today
   const streaks = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
   Object.keys(streaks).forEach(k => {
