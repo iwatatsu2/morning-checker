@@ -61,6 +61,13 @@ html, body {
   border-radius: 50%; width: 30px; height: 30px; font-size: 1.2rem; cursor: pointer;
 }
 
+.section-label {
+  font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.9);
+  margin-top: 6px; margin-bottom: 2px;
+}
+.section-hint {
+  font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-bottom: 4px;
+}
 .task-grid {
   display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
 }
@@ -407,11 +414,14 @@ function renderSettings() {
         </div>
         ${state.members.length > 1 ? `<button class="remove-member" onclick="removeMember(${i})">✕</button>` : ''}
       </div>
+      <div class="section-label">タスクを選択（タップでON/OFF）</div>
       <div class="task-grid">${taskChips}${customChips}</div>
+      <div class="section-label" style="margin-top:10px">オリジナルタスクを追加</div>
+      <div class="section-hint">イラストの代わりに絵文字が表示されます。絵文字は省略可（デフォルト⭐）</div>
       <div class="custom-task-row">
-        <input class="emoji-input" id="emoji-${i}" placeholder="😊" maxlength="2">
-        <input id="custom-label-${i}" placeholder="じゆうタスク">
-        <button class="add-task-btn" onclick="addCustomTask(${i})">＋</button>
+        <input class="emoji-input" id="emoji-${i}" placeholder="⭐" maxlength="2">
+        <input id="custom-label-${i}" placeholder="例：くすりをのむ">
+        <button class="add-task-btn" onclick="addCustomTask(${i})">追加</button>
       </div>
     `;
     container.appendChild(sec);
