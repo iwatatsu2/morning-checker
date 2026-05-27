@@ -328,24 +328,24 @@ html, body {
 // ===== TASK DEFINITIONS =====
 const PRESET_TASKS = {
   morning: [
-    { id: 'wash', label: 'かおをあらう', img: '{g}-wash.png' },
-    { id: 'eat', label: 'あさごはん', img: '{g}-eat.png' },
-    { id: 'brush', label: 'はみがき', img: '{g}-brush.png' },
-    { id: 'dress', label: 'おきがえ', img: '{g}-dress.png' },
-    { id: 'hair', label: 'かみをとかす', img: '{g}-hair.png' },
-    { id: 'temp', label: 'たいおん', img: '{g}-temp.png' },
-    { id: 'bag', label: 'かばんじゅんび', img: '{g}-bag.png' },
-    { id: 'piano', label: 'ピアノ', img: '{g}-piano.png' },
+    { id: 'wash', label: 'かおをあらう', img: 'wash.png' },
+    { id: 'eat', label: 'あさごはん', img: 'eat.png' },
+    { id: 'brush', label: 'はみがき', img: 'brush.png' },
+    { id: 'dress', label: 'おきがえ', img: 'dress.png' },
+    { id: 'hair', label: 'かみをとかす', img: 'hair.png' },
+    { id: 'temp', label: 'たいおん', img: 'temp.png' },
+    { id: 'bag', label: 'かばんじゅんび', img: 'bag.png' },
+    { id: 'piano', label: 'ピアノ', img: 'piano.png' },
   ],
   night: [
-    { id: 'bath', label: 'おふろ', img: '{g}-bath.png' },
-    { id: 'dinner', label: 'よるごはん', img: '{g}-dinner.png' },
-    { id: 'brush', label: 'はみがき', img: '{g}-brush.png' },
-    { id: 'pajama', label: 'パジャマ', img: '{g}-pajama.png' },
-    { id: 'homework', label: 'しゅくだい', img: '{g}-homework.png' },
-    { id: 'piano', label: 'ピアノ', img: '{g}-piano.png' },
-    { id: 'bag', label: 'かばんじゅんび', img: '{g}-bag.png' },
-    { id: 'temp', label: 'たいおん', img: '{g}-temp.png' },
+    { id: 'bath', label: 'おふろ', img: 'bath.png' },
+    { id: 'dinner', label: 'よるごはん', img: 'dinner.png' },
+    { id: 'brush', label: 'はみがき', img: 'brush.png' },
+    { id: 'pajama', label: 'パジャマ', img: 'pajama.png' },
+    { id: 'homework', label: 'しゅくだい', img: 'homework.png' },
+    { id: 'piano', label: 'ピアノ', img: 'piano.png' },
+    { id: 'bag', label: 'かばんじゅんび', img: 'bag.png' },
+    { id: 'temp', label: 'たいおん', img: 'temp.png' },
   ]
 };
 
@@ -364,10 +364,27 @@ function init() {
     state = JSON.parse(saved);
   } else {
     state.members = [
-      { name: '', gender: 'girl', tasks: ['wash','eat','brush','dress'], customTasks: [] },
-      { name: '', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] },
+      { name: '', gender: 'girl', morningTasks: ['wash','eat','brush','dress'], nightTasks: ['bath','brush','pajama'], morningCustom: [], nightCustom: [] },
+      { name: '', gender: 'boy', morningTasks: ['wash','eat','brush','dress'], nightTasks: ['bath','brush','pajama'], morningCustom: [], nightCustom: [] },
     ];
   }
+  // Migrate old format (tasks/customTasks) to mode-specific
+  state.members.forEach(m => {
+    if (m.tasks && !m.morningTasks) {
+      m.morningTasks = [...m.tasks];
+      m.nightTasks = m.tasks.filter(t => ['bath','brush','pajama','dinner','homework','piano','bag','temp'].includes(t));
+      if (m.nightTasks.length === 0) m.nightTasks = ['bath','brush','pajama'];
+    }
+    if (m.customTasks && !m.morningCustom) {
+      m.morningCustom = [...m.customTasks];
+      m.nightCustom = [];
+    }
+    if (!m.morningTasks) m.morningTasks = [];
+    if (!m.nightTasks) m.nightTasks = [];
+    if (!m.morningCustom) m.morningCustom = [];
+    if (!m.nightCustom) m.nightCustom = [];
+  });
+  saveState();
   if (state.mode === 'night') document.body.classList.add('night-mode');
   renderSettings();
 }
@@ -386,6 +403,12 @@ function setMode(mode) {
   saveState();
 }
 
+// ===== MODE-SPECIFIC HELPERS =====
+function getTasksKey() { return state.mode === 'morning' ? 'morningTasks' : 'nightTasks'; }
+function getCustomKey() { return state.mode === 'morning' ? 'morningCustom' : 'nightCustom'; }
+function getMemberTasks(m) { return m[getTasksKey()] || m.tasks || []; }
+function getMemberCustom(m) { return m[getCustomKey()] || m.customTasks || []; }
+
 // ===== SETTINGS RENDER =====
 function renderSettings() {
   const container = document.getElementById('members-container');
@@ -395,12 +418,12 @@ function renderSettings() {
     sec.className = 'member-section';
     const presets = PRESET_TASKS[state.mode];
     const taskChips = presets.map(t => {
-      const sel = m.tasks.includes(t.id) ? 'selected' : '';
-      const imgSrc = 'img/' + t.img.replace('{g}', m.gender);
+      const sel = getMemberTasks(m).includes(t.id) ? 'selected' : '';
+      const imgSrc = 'img/' + (t.id === 'bag' ? 'bag-' + m.gender + '.png' : t.img);
       return `<button class="task-chip ${sel}" onclick="toggleTask(${i},'${t.id}')">
         <img src="${imgSrc}" alt="">${t.label}</button>`;
     }).join('');
-    const customChips = (m.customTasks || []).map((ct, ci) =>
+    const customChips = getMemberCustom(m).map((ct, ci) =>
       `<button class="task-chip selected" onclick="removeCustomTask(${i},${ci})">
         ${ct.emoji} ${ct.label} ✕</button>`
     ).join('');
@@ -432,7 +455,9 @@ function renderSettings() {
 function updateName(i, v) { state.members[i].name = v; saveState(); }
 function setGender(i, g) { state.members[i].gender = g; renderSettings(); saveState(); }
 function toggleTask(i, tid) {
-  const t = state.members[i].tasks;
+  const key = getTasksKey();
+  if (!state.members[i][key]) state.members[i][key] = [];
+  const t = state.members[i][key];
   const idx = t.indexOf(tid);
   if (idx >= 0) t.splice(idx, 1); else t.push(tid);
   renderSettings(); saveState();
@@ -441,17 +466,19 @@ function addCustomTask(i) {
   const emoji = document.getElementById(`emoji-${i}`).value || '⭐';
   const label = document.getElementById(`custom-label-${i}`).value;
   if (!label) return;
-  if (!state.members[i].customTasks) state.members[i].customTasks = [];
-  state.members[i].customTasks.push({ emoji, label, id: 'custom-' + Date.now() });
+  const key = getCustomKey();
+  if (!state.members[i][key]) state.members[i][key] = [];
+  state.members[i][key].push({ emoji, label, id: 'custom-' + Date.now() });
   renderSettings(); saveState();
 }
 function removeCustomTask(i, ci) {
-  state.members[i].customTasks.splice(ci, 1);
+  const key = getCustomKey();
+  state.members[i][key].splice(ci, 1);
   renderSettings(); saveState();
 }
 function addMember() {
   if (state.members.length >= 4) return;
-  state.members.push({ name: '', gender: 'boy', tasks: ['wash','eat','brush','dress'], customTasks: [] });
+  state.members.push({ name: '', gender: 'boy', morningTasks: ['wash','eat','brush','dress'], nightTasks: ['bath','brush','pajama'], morningCustom: [], nightCustom: [] });
   renderSettings(); saveState();
 }
 function removeMember(i) {
@@ -503,28 +530,36 @@ function renderChecker() {
     row.id = `member-row-${mi}`;
 
     const presets = PRESET_TASKS[state.mode];
-    const activeTasks = presets.filter(t => m.tasks.includes(t.id));
-    const customs = m.customTasks || [];
+    const activeTasks = presets.filter(t => getMemberTasks(m).includes(t.id));
+    const customs = getMemberCustom(m);
     const allTasks = [...activeTasks.map(t => ({
-      ...t, imgSrc: 'img/' + t.img.replace('{g}', m.gender), type: 'preset'
+      ...t, imgSrc: 'img/' + (t.id === 'bag' ? 'bag-' + m.gender + '.png' : t.img), type: 'preset'
     })), ...customs.map(ct => ({ ...ct, type: 'custom' }))];
 
-    const doneSet = new Set(todayState[mi] || []);
+    const doneArr = todayState[mi] || [];
+    const doneSet = new Set(doneArr);
+    // Count only tasks that exist AND are checked
+    let doneCount = 0;
     const taskCards = allTasks.map((t, ti) => {
       const key = t.id;
-      const doneClass = doneSet.has(key) ? 'done' : '';
+      const isDone = doneSet.has(key);
+      if (isDone) doneCount++;
       const visual = t.type === 'preset'
         ? `<img src="${t.imgSrc}" alt="${t.label}">`
         : `<span class="emoji-icon">${t.emoji}</span>`;
-      return `<div class="task-card ${doneClass}" onclick="toggleDone(${mi},'${key}')">
+      return `<div class="task-card ${isDone ? 'done' : ''}" onclick="toggleDone(${mi},'${key}')">
         ${visual}<span class="task-name">${t.label}</span></div>`;
     }).join('');
+
+    // Mark all-done only if every displayed card is checked
+    const isAllDone = allTasks.length > 0 && doneCount === allTasks.length;
 
     row.innerHTML = `
       <div class="member-name">${m.name}</div>
       <span class="done-badge">🎉</span>
       <div class="task-list">${taskCards}</div>
     `;
+    if (isAllDone) row.classList.add('all-done');
     area.appendChild(row);
   });
 }
@@ -535,35 +570,59 @@ function toggleDone(mi, taskId) {
   const todayState = JSON.parse(localStorage.getItem(storeKey) || '{}');
   if (!todayState[mi]) todayState[mi] = [];
   const idx = todayState[mi].indexOf(taskId);
+  const wasAdded = idx < 0;
   if (idx >= 0) todayState[mi].splice(idx, 1); else todayState[mi].push(taskId);
   localStorage.setItem(storeKey, JSON.stringify(todayState));
   renderChecker();
-  checkMemberComplete(mi, todayState);
+  // Only check completion when a task was checked (not unchecked)
+  if (wasAdded) checkMemberComplete(mi);
 }
 
-function checkMemberComplete(mi, todayState) {
+function isMemberComplete(mi) {
   const m = state.members[mi];
   const presets = PRESET_TASKS[state.mode];
-  const activeTasks = presets.filter(t => m.tasks.includes(t.id));
-  const customs = m.customTasks || [];
-  const total = activeTasks.length + customs.length;
-  const done = (todayState[mi] || []).length;
+  const memberTasks = getMemberTasks(m);
+  const activeTasks = presets.filter(t => memberTasks.includes(t.id));
+  const customs = getMemberCustom(m);
+  const allTaskIds = [...activeTasks.map(t => t.id), ...customs.map(ct => ct.id)];
 
-  if (done >= total && total > 0) {
-    const row = document.getElementById(`member-row-${mi}`);
-    row.classList.add('all-done');
+  const today = getTodayKey();
+  const storeKey = 'checker-today-' + state.mode + '-' + today;
+  const todayState = JSON.parse(localStorage.getItem(storeKey) || '{}');
+  const doneArr = todayState[mi] || [];
+  const doneSet = new Set(doneArr);
 
-    // Save streak
-    saveStreak(mi);
+  const result = allTaskIds.length > 0 && allTaskIds.every(id => doneSet.has(id));
+  console.log(`[DEBUG] member=${mi}, mode=${state.mode}, memberTasks=${JSON.stringify(memberTasks)}, allTaskIds=${JSON.stringify(allTaskIds)}, doneArr=${JSON.stringify(doneArr)}, result=${result}`);
+  return result;
+}
 
-    // Show reward
+function checkMemberComplete(mi) {
+  if (!isMemberComplete(mi)) return;
+
+  const m = state.members[mi];
+  saveStreak(mi);
+
+  setTimeout(() => {
+    document.getElementById('reward-name').textContent = m.name + ' すごい！';
+    document.getElementById('reward-overlay').classList.add('show');
+  }, 400);
+
+  setTimeout(() => checkWeekStreak(mi), 800);
+  setTimeout(() => checkAllMembersComplete(), 1200);
+}
+
+function checkAllMembersComplete() {
+  const allDone = state.members.every((m, mi) => isMemberComplete(mi));
+  if (allDone) {
+    const nextMode = state.mode === 'morning' ? 'night' : 'morning';
+    const today = getTodayKey();
+    const switchKey = 'auto-switch-' + state.mode + '-' + today;
+    if (localStorage.getItem(switchKey)) return; // already switched
+    localStorage.setItem(switchKey, '1');
     setTimeout(() => {
-      document.getElementById('reward-name').textContent = m.name + ' すごい！';
-      document.getElementById('reward-overlay').classList.add('show');
-    }, 400);
-
-    // Check week completion
-    setTimeout(() => checkWeekStreak(mi), 800);
+      switchMode(nextMode);
+    }, 2000);
   }
 }
 
@@ -610,11 +669,14 @@ function renderWeekTracker() {
   let html = '';
   weekDates.forEach((date, i) => {
     const isToday = date === today;
+    const parts = date.split('-');
+    const monthNum = parts[1].replace(/^0/, '');
+    const dayNum = parts[2].replace(/^0/, '');
     // Check if ANY member completed this day
     const anyDone = Object.values(streaks).some(arr => arr.includes(date));
     html += `<div class="week-day ${isToday ? 'today' : ''}">
       <span class="star">${anyDone ? '★' : '☆'}</span>
-      <span>${dayNames[i]}</span>
+      <span>${monthNum}/${dayNum} ${dayNames[i]}</span>
     </div>`;
   });
   tracker.innerHTML = html;
