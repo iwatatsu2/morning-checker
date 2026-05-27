@@ -276,7 +276,13 @@ html, body {
 <body>
 
 <!-- ===== SETTINGS SCREEN ===== -->
-<div id="settings-screen">
+<div id="settings-screen" style="position:relative;">
+  <!-- 制作者ボタン -->
+  <button onclick="document.getElementById('about-modal').style.display='flex'"
+    style="position:absolute; top:16px; right:16px; display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); border-radius:50px; padding:6px 12px; color:rgba(255,255,255,0.8); font-size:0.7rem; cursor:pointer; backdrop-filter:blur(4px); font-family:inherit; z-index:10;">
+    <span>👨‍⚕️</span> Dr.いわたつ
+  </button>
+
   <div class="settings-title">あさのしたく チェッカー</div>
 
   <div class="mode-toggle">
@@ -290,6 +296,7 @@ html, body {
     <button class="add-member-btn" id="add-member-btn" onclick="addMember()">＋ ひとりふやす</button>
     <button class="start-btn" onclick="startChecker()">スタート！</button>
   </div>
+
 </div>
 
 <!-- ===== CHECKER SCREEN ===== -->
@@ -718,5 +725,52 @@ function resetToday() {
 
 init();
 </script>
+
+<!-- プロフィールモーダル -->
+<div id="about-modal" onclick="if(event.target===this)this.style.display='none'"
+  style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+  <div style="background:linear-gradient(135deg,#667eea,#764ba2); border-radius:20px; max-width:400px; width:100%; max-height:85vh; overflow-y:auto; color:white; padding:24px; position:relative;">
+    <button onclick="document.getElementById('about-modal').style.display='none'"
+      style="position:absolute; top:12px; right:12px; background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; font-size:1.2rem; cursor:pointer; font-family:inherit;">✕</button>
+
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="width:72px; height:72px; border-radius:50%; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin:0 auto;">👨‍⚕️</div>
+      <h2 style="font-size:1.4rem; font-weight:900; margin-top:10px;">Dr. いわたつ</h2>
+      <p style="font-size:0.8rem; opacity:0.7; margin-top:2px;">岩本 達也</p>
+      <p style="font-size:0.8rem; opacity:0.6; margin-top:4px;">糖尿病・内分泌 専門医・指導医</p>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.1); border-radius:14px; padding:16px; margin-bottom:16px;">
+      <p style="font-size:0.8rem; line-height:1.8; opacity:0.9;">
+        糖尿病・内分泌の専門医として日々診療に取り組みながら、「現場で本当に使えるツールを自分の手で作る」をモットーにWebアプリを開発しています。
+      </p>
+      <p style="font-size:0.8rem; line-height:1.8; opacity:0.9; margin-top:10px;">
+        医療者向けの計算ツールから、子どもの学習・生活習慣づくりに役立つアプリまで、すべて無料で公開中。2児の父として、子どもたちの「できた！」を増やすアプリづくりにも力を入れています。
+      </p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <a href="https://driwatatsu.readdy.co" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>🌐</span><span>公式サイト</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+      <a href="https://medapp-market.vercel.app" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>🏥</span><span>医療アプリまとめ</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+      <a href="https://www.instagram.com/dr.iwatatsu/" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>📷</span><span>Instagram</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+      <a href="https://x.com/KenKyu1019799" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>𝕏</span><span>X (Twitter)</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+      <a href="https://note.com/dr_iwatatsu" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>📝</span><span>note</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+      <a href="https://slide.antaa.jp/profile/mtzDnleJ6DYJ" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:12px; text-decoration:none; color:white; font-size:0.85rem;">
+        <span>📊</span><span>antaaスライド</span><span style="margin-left:auto; opacity:0.5;">→</span>
+      </a>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
